@@ -120,6 +120,7 @@ export default defineUserConfig({
                         'current-state',
                         'device',
                         'events-all',
+                        'events-calendar',
                         'events-state',
                         'fire-event',
                         'get-entities',

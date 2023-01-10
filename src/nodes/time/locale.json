@@ -9,6 +9,7 @@
       "offset_nan": "Offset is not a number: __offset__"
     },
     "label": {
+      "end": "end",
       "entity_id": "Entity ID",
       "friday": "Friday",
       "monday": "Monday",
@@ -26,6 +27,7 @@
       "saturday": "Saturday",
       "server": "Server",
       "show_debug": "Show Debug Information",
+      "start": "start",
       "sunday": "Sunday",
       "thursday": "Thursday",
       "tuesday": "Tuesday",
