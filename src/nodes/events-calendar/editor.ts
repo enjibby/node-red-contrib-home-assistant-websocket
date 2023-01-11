@@ -8,7 +8,7 @@ import {
     validate as outputsValidate,
 } from '../../editor/components/output-properties';
 import * as exposeNode from '../../editor/exposenode';
-import ha, { NodeCategory } from '../../editor/ha';
+import ha, { NodeCategory, NodeColor } from '../../editor/ha';
 import * as haServer from '../../editor/haserver';
 import {
     HassExposedConfig,
@@ -65,6 +65,7 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
         },
         inputs: 0,
         outputs: 1,
+        color: NodeColor.HaBlue,
         icon: 'ha-events-calendar.svg',
         paletteLabel: 'events: calendar',
         label: function () {
