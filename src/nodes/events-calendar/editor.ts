@@ -29,6 +29,9 @@ interface EventsCalendarEditorNodeProperties extends HassNodeProperties {
     offset: string;
     offsetType: 'num' | 'expr';
     offsetUnits: 'seconds' | 'minutes' | 'hours';
+    updateInterval: string;
+    updateIntervalType: 'num' | 'expr';
+    updateIntervalUnits: 'seconds' | 'minutes' | 'hours';
     outputProperties: OutputProperty[];
 }
 
@@ -51,6 +54,9 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
             offset: { value: '0' },
             offsetType: { value: 'num' },
             offsetUnits: { value: 'seconds' },
+            updateInterval: { value: '15' },
+            updateIntervalType: { value: 'num' },
+            updateIntervalUnits: { value: 'minutes' },
             outputProperties: {
                 value: [
                     {
@@ -93,6 +99,11 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
             $('#node-input-offset').typedInput({
                 types: ['num', 'jsonata'],
                 typeField: '#node-input-offsetType',
+            });
+
+            $('#node-input-updateInterval').typedInput({
+                types: ['num', 'jsonata'],
+                typeField: '#node-input-updateIntervalType',
             });
 
             haCreateOutputs(this.outputProperties, {
