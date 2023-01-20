@@ -57,7 +57,7 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
                         property: 'payload',
                         propertyType: 'msg',
                         value: '',
-                        valueType: 'calendarEventData',
+                        valueType: 'calendarItem',
                     },
                 ],
                 validate: outputsValidate,
@@ -95,7 +95,9 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
                 typeField: '#node-input-offsetType',
             });
 
-            haCreateOutputs(this.outputProperties);
+            haCreateOutputs(this.outputProperties, {
+                extraTypes: ['calendarItem'],
+            });
         },
     };
 
