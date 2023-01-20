@@ -17,4 +17,18 @@ export default [
             return newSchema;
         },
     },
+    {
+        version: 1,
+        up: (schema: any) => {
+            const newSchema = {
+                ...schema,
+                version: 1,
+                updateInterval: '15',
+                updateIntervalType: 'num',
+                updateIntervalUnits: 'minutes',
+            };
+
+            return newSchema;
+        },
+    },
 ];
