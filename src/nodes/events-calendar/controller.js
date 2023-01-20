@@ -1,4 +1,6 @@
 const EventsHaNode = require('../EventsHaNode');
+const { getTimeInMilliseconds } = require('../../helpers/utils');
+const { TYPEDINPUT_JSONATA } = require('../../const');
 
 const nodeOptions = {
     config: {
@@ -12,6 +14,9 @@ const nodeOptions = {
         offset: {},
         offsetType: {},
         offsetUnits: {},
+        updateInterval: {},
+        updateIntervalType: {},
+        updateIntervalUnits: {},
         outputProperties: {},
     },
 };
@@ -120,10 +125,48 @@ class EventsCalendar extends EventsHaNode {
         // this.send([msg, null]);
     }
 
+    getInterval() {
+        let interval = this.nodeConfig.updateinterval || '0';
+        if (this.nodeConfig.updateIntervalType === TYPEDINPUT_JSONATA) {
+            try {
+                interval = this.evaluateJSONata(interval);
+            } catch (e) {
+                this.node.error(
+                    this.RED._('events-calendar.errors.jsonata_error', {
+                        message: e.message,
+                    })
+                );
+                throw new Error('error');
+            }
+        }
+
+        const intervalMs = getTimeInMilliseconds(
+            interval,
+            this.nodeConfig.updateIntervalUnits
+        );
+        if (isNaN(intervalMs)) {
+            this.node.error(
+                this.RED._('events-calendar.errors.offset_nan', { interval })
+            );
+            throw new Error(this.RED._('events-calendar.status.error'));
+        }
+
+        return Number(intervalMs);
+    }
+
     onIntervalUpdate() {
+        const interval = this.getInterval();
+        // create new timer if interval changed
+        if (interval === this.updateIntervalMs) {
+            return;
+        }
+
         clearInterval(this.timer);
-        // As per the Home Assistant native calendar trigger, only fire every 15 minutes.
-        this.timer = setInterval(this.onTimer.bind(this), 900000);
+        this.updateIntervalMs = interval;
+        this.timer = setInterval(
+            this.onTimer.bind(this),
+            this.updateIntervalMs
+        );
     }
 }
 
