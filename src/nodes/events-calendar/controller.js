@@ -30,16 +30,15 @@ class EventsCalendar extends EventsHaNode {
         }
 
         if (this.isHomeAssistantRunning) {
-            this.onTimer();
-            this.onIntervalUpdate();
+            this.setNextTimeout();
         } else {
             this.addEventClientListener(
                 'ha_client:initial_connection_ready',
-                this.onTimer.bind(this)
+                this.setNextTimeout.bind(this)
             );
             this.addEventClientListener(
                 'ha_client:ready',
-                this.onIntervalUpdate.bind(this)
+                this.setNextTimeout.bind(this)
             );
         }
     }
@@ -47,12 +46,14 @@ class EventsCalendar extends EventsHaNode {
     onClose(removed) {
         super.onClose(removed);
         if (this.timer) {
-            clearInterval(this.timer);
+            clearTimeout(this.timer);
             this.timer = null;
         }
     }
 
     onTimer(triggered = false) {
+        this.setNextTimeout();
+
         if (!this.isHomeAssistantRunning || this.isEnabled === false) {
             return;
         }
@@ -126,7 +127,7 @@ class EventsCalendar extends EventsHaNode {
     }
 
     getInterval() {
-        let interval = this.nodeConfig.updateinterval || '0';
+        let interval = this.nodeConfig.updateInterval || '0';
         if (this.nodeConfig.updateIntervalType === TYPEDINPUT_JSONATA) {
             try {
                 interval = this.evaluateJSONata(interval);
@@ -154,19 +155,22 @@ class EventsCalendar extends EventsHaNode {
         return Number(intervalMs);
     }
 
-    onIntervalUpdate() {
+    getNextTimeoutInterval() {
         const interval = this.getInterval();
-        // create new timer if interval changed
-        if (interval === this.updateIntervalMs) {
-            return;
-        }
 
-        clearInterval(this.timer);
-        this.updateIntervalMs = interval;
-        this.timer = setInterval(
-            this.onTimer.bind(this),
-            this.updateIntervalMs
-        );
+        // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
+        const now = new Date();
+        now.setMilliseconds(now.getMilliseconds() + 5);
+        const midnight = new Date(0, 0, 0, 0, 0, 0);
+        const msFromMidnight = now.getTime() - midnight.getTime();
+        return interval - (msFromMidnight % interval);
+    }
+
+    setNextTimeout() {
+        const msToNextTrigger = this.getNextTimeoutInterval();
+
+        clearTimeout(this.timer);
+        this.timer = setTimeout(this.onTimer.bind(this), msToNextTrigger);
     }
 }
 
