@@ -1,6 +1,7 @@
 const EventsHaNode = require('../EventsHaNode');
 const { getTimeInMilliseconds } = require('../../helpers/utils');
 const { TYPEDINPUT_JSONATA } = require('../../const');
+const axios = require('axios');
 
 const nodeOptions = {
     config: {
@@ -51,24 +52,40 @@ class EventsCalendar extends EventsHaNode {
         }
     }
 
-    onTimer(triggered = false) {
-        this.setNextTimeout();
+    async onTimer(triggered = false) {
+        const now = new Date();
+
+        this.setNextTimeout(now);
 
         if (!this.isHomeAssistantRunning || this.isEnabled === false) {
             return;
         }
 
-        const startDate = '2023-01-25T18:00:00+10:00';
-        const endDate = '2023-01-25T18:15:00+10:00';
-        const items = this.homeAssistant.get(
-            `/api/calendars/${this.nodeConfig.entityId}`,
-            {
-                start: startDate,
-                end: endDate,
-            }
-        );
+        const startDate = this.getStartDate();
+        const endDate = this.getEndDate();
 
-        this.send([{ test: true }]);
+        let items = null;
+        try {
+            items = await this.homeAssistant.get(
+                `/calendars/${this.nodeConfig.entityId}`,
+                {
+                    start: startDate,
+                    end: endDate,
+                }
+            );
+        } catch (exc) {
+            this.node.error(
+                `calendar items could not be retrieved from entity_id "${this.nodeConfig.entityId}"`,
+                {}
+            );
+            return;
+        }
+
+        this.send([{
+            start: startDate,
+            end: endDate,
+            items,
+        }]);
 
         // const pollState = this.homeAssistant.getStates(
         //     this.nodeConfig.entity_id
@@ -194,30 +211,56 @@ class EventsCalendar extends EventsHaNode {
         return Number(offsetMs);
     }
 
-    getStartDate() {
-        const intervalMs = this.getInterval();
+    getStartDate(now) {
+        if (!now) {
+            now = new Date();
+        }
+
+        const msOffset = this.getOffset();
 
         // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
-        const now = new Date();
-        now.setMilliseconds(now.getMilliseconds() + 5);
-        const epoch = new Date(0, 0, 0, 0, 0, 0);
-        const msFromEpoch = now.getTime() - epoch.getTime();
-        return interval - (msFromEpoch % interval);
+        const startDate = new Date(now);
+        startDate.setMilliseconds(startDate.getMilliseconds() + msOffset);
+        return startDate.toISOString();
     }
 
-    getNextTimeoutInterval() {
-        const interval = this.getInterval();
+    getEndDate(now) {
+        if (!now) {
+            now = new Date();
+        }
+
+        const msOffset = this.getOffset();
+        const msInterval = this.getInterval();
 
         // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
-        const now = new Date();
-        now.setMilliseconds(now.getMilliseconds() + 5);
-        const epoch = new Date(0, 0, 0, 0, 0, 0);
-        const msFromEpoch = now.getTime() - epoch.getTime();
-        return interval - (msFromEpoch % interval);
+        const endDate = new Date(now);
+        endDate.setMilliseconds(
+            endDate.getMilliseconds() + msOffset + msInterval
+        );
+        return endDate.toISOString();
     }
 
-    setNextTimeout() {
-        const msToNextTrigger = this.getNextTimeoutInterval();
+    getNextTimeoutInterval(now) {
+        if (!now) {
+            now = new Date();
+        }
+
+        const msInterval = this.getInterval();
+
+        // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
+        const soon = new Date(now);
+        soon.setMilliseconds(soon.getMilliseconds() + 5);
+        const epoch = new Date(0, 0, 0, 0, 0, 0);
+        const msFromEpoch = soon.getTime() - epoch.getTime();
+        return msInterval - (msFromEpoch % msInterval);
+    }
+
+    setNextTimeout(now) {
+        if (!now) {
+            now = new Date();
+        }
+
+        const msToNextTrigger = this.getNextTimeoutInterval(now);
 
         clearTimeout(this.timer);
         this.timer = setTimeout(this.onTimer.bind(this), msToNextTrigger);
