@@ -58,6 +58,16 @@ class EventsCalendar extends EventsHaNode {
             return;
         }
 
+        const startDate = '2023-01-25T18:00:00+10:00';
+        const endDate = '2023-01-25T18:15:00+10:00';
+        const items = this.homeAssistant.get(
+            `/api/calendars/${this.nodeConfig.entityId}`,
+            {
+                start: startDate,
+                end: endDate,
+            }
+        );
+
         this.send([{ test: true }]);
 
         // const pollState = this.homeAssistant.getStates(
@@ -147,12 +157,52 @@ class EventsCalendar extends EventsHaNode {
         );
         if (isNaN(intervalMs)) {
             this.node.error(
-                this.RED._('events-calendar.errors.offset_nan', { interval })
+                this.RED._('ha-events-calendar.errors.update_interval_nan', { interval })
             );
             throw new Error(this.RED._('events-calendar.status.error'));
         }
 
         return Number(intervalMs);
+    }
+
+    getOffset() {
+        let offset = this.nodeConfig.offset || '0';
+        if (this.nodeConfig.offsetType === TYPEDINPUT_JSONATA) {
+            try {
+                offset = this.evaluateJSONata(offset);
+            } catch (e) {
+                this.node.error(
+                    this.RED._('events-calendar.errors.jsonata_error', {
+                        message: e.message,
+                    })
+                );
+                throw new Error('error');
+            }
+        }
+
+        const offsetMs = getTimeInMilliseconds(
+            offset,
+            this.nodeConfig.offsetUnits
+        );
+        if (isNaN(offsetMs)) {
+            this.node.error(
+                this.RED._('events-calendar.errors.offset_nan', { offset })
+            );
+            throw new Error(this.RED._('events-calendar.status.error'));
+        }
+
+        return Number(offsetMs);
+    }
+
+    getStartDate() {
+        const intervalMs = this.getInterval();
+
+        // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
+        const now = new Date();
+        now.setMilliseconds(now.getMilliseconds() + 5);
+        const epoch = new Date(0, 0, 0, 0, 0, 0);
+        const msFromEpoch = now.getTime() - epoch.getTime();
+        return interval - (msFromEpoch % interval);
     }
 
     getNextTimeoutInterval() {

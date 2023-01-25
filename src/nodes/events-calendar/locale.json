@@ -2,6 +2,9 @@
     "ha-events-calendar": {
         "label": {
             "update_interval": "Update interval"
+        },
+        "errors": {
+            "update_interval_nan": "Update Interval is not a number: __interval__"
         }
     }
 }
