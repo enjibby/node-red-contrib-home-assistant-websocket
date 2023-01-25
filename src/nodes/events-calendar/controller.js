@@ -161,9 +161,9 @@ class EventsCalendar extends EventsHaNode {
         // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
         const now = new Date();
         now.setMilliseconds(now.getMilliseconds() + 5);
-        const midnight = new Date(0, 0, 0, 0, 0, 0);
-        const msFromMidnight = now.getTime() - midnight.getTime();
-        return interval - (msFromMidnight % interval);
+        const epoch = new Date(0, 0, 0, 0, 0, 0);
+        const msFromEpoch = now.getTime() - epoch.getTime();
+        return interval - (msFromEpoch % interval);
     }
 
     setNextTimeout() {
