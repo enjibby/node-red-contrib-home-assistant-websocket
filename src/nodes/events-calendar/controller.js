@@ -51,6 +51,10 @@ class EventsCalendar extends EventsHaNode {
         }
     }
 
+    /**
+     * Search for all matching events that start or end in the current time range and trigger a timer for the next time range
+     * @returns Promise
+     */
     async onTimer() {
         if (this.isEnabled === false) {
             return;
@@ -58,8 +62,10 @@ class EventsCalendar extends EventsHaNode {
 
         const now = new Date();
 
+        // use an epoch modulus with our check interval to calculate the start time of our current time range
         const currentStart = this.getCurrentStart(now);
 
+        // from the start, also calculate the end of our time range
         const msInterval = this.getInterval();
         const currentEnd = new Date(currentStart);
         currentEnd.setMilliseconds(currentEnd.getMilliseconds() + msInterval);
@@ -69,9 +75,10 @@ class EventsCalendar extends EventsHaNode {
             this.timer = null;
         }
 
+        // kick another timer off for the next time range
         this.timer = setTimeout(
             this.onTimer.bind(this),
-            currentEnd.getTime() - now.getTime() + 2
+            currentEnd.getTime() - now.getTime() + 2 // Add a teensy bit of time just to make sure we don't straddle boundaries
         );
 
         if (!this.isHomeAssistantRunning) {
@@ -111,15 +118,19 @@ class EventsCalendar extends EventsHaNode {
             return;
         }
 
-        items.forEach(this.sendItem.bind(this));
+        items.forEach(this.sendCalendarItem.bind(this));
 
         this.status.setSuccess(`Found ${items.length} matched event(s)`);
     }
 
-    sendItem(item) {
+    /**
+     * Format a message using outputProperties for the specified Calendar Item and send it
+     * @param {*} calendarItem The object representing a calendar event as defined by HA calendar API
+     */
+    sendCalendarItem(calendarItem) {
         const message = {};
         this.setCustomOutputs(this.nodeConfig.outputProperties, message, {
-            calendarItem: item,
+            calendarItem,
         });
         this.send(message);
     }
