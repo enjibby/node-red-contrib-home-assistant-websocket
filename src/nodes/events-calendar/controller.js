@@ -31,15 +31,15 @@ class EventsCalendar extends EventsHaNode {
         }
 
         if (this.isHomeAssistantRunning) {
-            this.setNextTimeout();
+            this.onStartTimeout();
         } else {
             this.addEventClientListener(
                 'ha_client:initial_connection_ready',
-                this.setNextTimeout.bind(this)
+                this.onStartTimeout.bind(this)
             );
             this.addEventClientListener(
                 'ha_client:ready',
-                this.setNextTimeout.bind(this)
+                this.onStartTimeout.bind(this)
             );
         }
     }
@@ -52,25 +52,47 @@ class EventsCalendar extends EventsHaNode {
         }
     }
 
-    async onTimer(triggered = false) {
-        const now = new Date();
-
-        this.setNextTimeout(now);
-
-        if (!this.isHomeAssistantRunning || this.isEnabled === false) {
+    async onTimer() {
+        if (this.isEnabled === false) {
             return;
         }
 
-        const startDate = this.getStartDate();
-        const endDate = this.getEndDate();
+        const now = new Date();
+
+        const currentStart = this.getCurrentStart(now);
+
+        const msInterval = this.getInterval();
+        const currentEnd = new Date(currentStart);
+        currentEnd.setMilliseconds(currentEnd.getMilliseconds() + msInterval);
+
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+
+        this.timer = setTimeout(
+            this.onTimer.bind(this),
+            currentEnd.getTime() - now.getTime() + 2
+        );
+
+        if (!this.isHomeAssistantRunning) {
+            return;
+        }
+
+        const msOffset = this.getOffset();
+        const offsetStart = new Date(currentStart);
+        offsetStart.setMilliseconds(offsetStart.getMilliseconds() + msOffset);
+
+        const offsetEnd = new Date(offsetStart);
+        offsetEnd.setMilliseconds(offsetEnd.getMilliseconds() + msInterval);
 
         let items = null;
         try {
             items = await this.homeAssistant.get(
                 `/calendars/${this.nodeConfig.entityId}`,
                 {
-                    start: startDate,
-                    end: endDate,
+                    start: offsetStart.toISOString(),
+                    end: offsetEnd.toISOString(),
                 }
             );
         } catch (exc) {
@@ -81,78 +103,29 @@ class EventsCalendar extends EventsHaNode {
             return;
         }
 
-        this.send([{
-            start: startDate,
-            end: endDate,
-            items,
-        }]);
+        // TODO: filter items by criteria
 
-        // const pollState = this.homeAssistant.getStates(
-        //     this.nodeConfig.entity_id
-        // );
-        // if (!pollState) {
-        //     this.node.error(
-        //         `could not find state with entity_id "${this.nodeConfig.entity_id}"`,
-        //         {}
-        //     );
-        //     this.status.setText(
-        //         `no state found for ${this.nodeConfig.entity_id}`
-        //     );
-        //     return;
-        // }
+        if (!(items.length > 0)) {
+            this.status.setFailed('No items');
+            return;
+        }
 
-        // const dateChanged = this.calculateTimeSinceChanged(pollState);
-        // if (!dateChanged) {
-        //     this.node.error(
-        //         `could not calculate time since changed for entity_id "${this.nodeConfig.entity_id}"`,
-        //         {}
-        //     );
-        //     return;
-        // }
-        // pollState.timeSinceChanged = ta.ago(dateChanged);
-        // pollState.timeSinceChangedMs = Date.now() - dateChanged.getTime();
+        // TODO: build a message for each found item
+        this.send([
+            {
+                start: offsetStart.toISOString(),
+                end: offsetEnd.toISOString(),
+                items,
+            },
+        ]);
 
-        // // Convert and save original state if needed
-        // this.castState(pollState, this.nodeConfig.state_type);
-
-        // const msg = {
-        //     topic: this.nodeConfig.entity_id,
-        //     payload: pollState.state,
-        //     data: pollState,
-        // };
-
-        // let isIfState;
-        // try {
-        //     isIfState = this.getComparatorResult(
-        //         this.nodeConfig.halt_if_compare,
-        //         this.nodeConfig.halt_if,
-        //         pollState.state,
-        //         this.nodeConfig.halt_if_type,
-        //         {
-        //             entity: pollState,
-        //         }
-        //     );
-        // } catch (e) {
-        //     this.status.setFailed('Error');
-        //     this.node.error(e.message, {});
-        //     return;
-        // }
-
-        // const statusMessage = `${pollState.state}${
-        //     triggered === true ? ` (triggered)` : ''
-        // }`;
-
-        // // Check 'if state' and send to correct output
-        // if (this.nodeConfig.halt_if && !isIfState) {
-        //     this.status.setFailed(statusMessage);
-        //     this.send([null, msg]);
-        //     return;
-        // }
-
-        // this.status.setSuccess(statusMessage);
-        // this.send([msg, null]);
+        this.status.setSuccess(`Sent ${items.length} item triggers`);
     }
 
+    /**
+     * Read the node config to calculate the number of milliseconds for each interval
+     * @returns Number
+     */
     getInterval() {
         let interval = this.nodeConfig.updateInterval || '0';
         if (this.nodeConfig.updateIntervalType === TYPEDINPUT_JSONATA) {
@@ -174,7 +147,9 @@ class EventsCalendar extends EventsHaNode {
         );
         if (isNaN(intervalMs)) {
             this.node.error(
-                this.RED._('ha-events-calendar.errors.update_interval_nan', { interval })
+                this.RED._('ha-events-calendar.errors.update_interval_nan', {
+                    interval,
+                })
             );
             throw new Error(this.RED._('events-calendar.status.error'));
         }
@@ -182,6 +157,10 @@ class EventsCalendar extends EventsHaNode {
         return Number(intervalMs);
     }
 
+    /**
+     * Read the node config to calculate the number of milliseconds offset
+     * @returns Number
+     */
     getOffset() {
         let offset = this.nodeConfig.offset || '0';
         if (this.nodeConfig.offsetType === TYPEDINPUT_JSONATA) {
@@ -211,58 +190,48 @@ class EventsCalendar extends EventsHaNode {
         return Number(offsetMs);
     }
 
-    getStartDate(now) {
-        if (!now) {
-            now = new Date();
-        }
-
-        const msOffset = this.getOffset();
-
-        // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
-        const startDate = new Date(now);
-        startDate.setMilliseconds(startDate.getMilliseconds() + msOffset);
-        return startDate.toISOString();
-    }
-
-    getEndDate(now) {
-        if (!now) {
-            now = new Date();
-        }
-
-        const msOffset = this.getOffset();
+    /**
+     * Get the datetime of the most recent interval time in the past
+     * @param {Date} now
+     * @returns Date
+     */
+    getCurrentStart(now) {
+        const epoch = new Date(0, 0, 0, 0, 0, 0);
+        const msFromEpoch = now.getTime() - epoch.getTime();
         const msInterval = this.getInterval();
+        const start = new Date(now);
+        start.setTime(start.getTime() - (msFromEpoch % msInterval));
 
-        // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
-        const endDate = new Date(now);
-        endDate.setMilliseconds(
-            endDate.getMilliseconds() + msOffset + msInterval
-        );
-        return endDate.toISOString();
+        return start;
     }
 
+    /**
+     * Calculate the number of milliseconds until the next timer should be fired
+     * @param {Date} now
+     * @returns Number
+     */
     getNextTimeoutInterval(now) {
-        if (!now) {
-            now = new Date();
-        }
-
         const msInterval = this.getInterval();
 
         // use the modulus of the number of milliseconds from epoch (add a few ms prevent duplicate now triggers) to calculate the next time to trigger this timer
         const soon = new Date(now);
-        soon.setMilliseconds(soon.getMilliseconds() + 5);
         const epoch = new Date(0, 0, 0, 0, 0, 0);
-        const msFromEpoch = soon.getTime() - epoch.getTime();
-        return msInterval - (msFromEpoch % msInterval);
+        const msFromEpoch = Number(soon.getTime() - epoch.getTime());
+        return Number(msInterval - (msFromEpoch % msInterval));
     }
 
-    setNextTimeout(now) {
-        if (!now) {
-            now = new Date();
-        }
-
+    /**
+     * Initiate the first fire of the timer at the start of the next interval
+     */
+    onStartTimeout() {
+        const now = new Date();
         const msToNextTrigger = this.getNextTimeoutInterval(now);
 
-        clearTimeout(this.timer);
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+
         this.timer = setTimeout(this.onTimer.bind(this), msToNextTrigger);
     }
 }
