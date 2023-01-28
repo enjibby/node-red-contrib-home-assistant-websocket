@@ -1,7 +1,6 @@
 const EventsHaNode = require('../EventsHaNode');
 const { getTimeInMilliseconds } = require('../../helpers/utils');
 const { TYPEDINPUT_JSONATA } = require('../../const');
-const axios = require('axios');
 
 const nodeOptions = {
     config: {
@@ -103,23 +102,26 @@ class EventsCalendar extends EventsHaNode {
             return;
         }
 
+        // TODO: filter only events starting/ending in time range
+
         // TODO: filter items by criteria
 
         if (!(items.length > 0)) {
-            this.status.setFailed('No items');
+            this.status.setFailed('No matched events');
             return;
         }
 
-        // TODO: build a message for each found item
-        this.send([
-            {
-                start: offsetStart.toISOString(),
-                end: offsetEnd.toISOString(),
-                items,
-            },
-        ]);
+        items.forEach(this.sendItem.bind(this));
 
-        this.status.setSuccess(`Sent ${items.length} item triggers`);
+        this.status.setSuccess(`Found ${items.length} matched event(s)`);
+    }
+
+    sendItem(item) {
+        const message = {};
+        this.setCustomOutputs(this.nodeConfig.outputProperties, message, {
+            calendarItem: item,
+        });
+        this.send(message);
     }
 
     /**

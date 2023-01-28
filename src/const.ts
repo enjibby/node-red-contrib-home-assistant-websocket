@@ -133,6 +133,7 @@ export enum TypedInputTypes {
     Regex = 're',
     Value = 'value',
     PreviousValue = 'previousValue',
+    CalendarItem = 'calendarItem',
 }
 
 export enum TimeUnit {
