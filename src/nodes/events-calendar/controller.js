@@ -36,11 +36,11 @@ class EventsCalendar extends EventsHaNode {
             if (this.nodeConfig.outputOnConnect) {
                 this.addEventClientListener(
                     'ha_client:initial_connection_ready',
-                    this.onTimer.bind(this)
+                    this.onStartImmediately.bind(this)
                 );
                 this.addEventClientListener(
                     'ha_client:ready',
-                    this.onTimer.bind(this)
+                    this.onStartImmediately.bind(this)
                 );
             } else {
                 this.addEventClientListener(
@@ -258,6 +258,17 @@ class EventsCalendar extends EventsHaNode {
         }
 
         this.timer = setTimeout(this.onTimer.bind(this), msToNextTrigger);
+    }
+
+    /**
+     * Initiate the first fire of the timer at the start of the next interval
+     */
+    onStartImmediately() {
+        if (this.timer) {
+            return;
+        }
+
+        this.onTimer();
     }
 }
 
