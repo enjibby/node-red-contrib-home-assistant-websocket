@@ -17,6 +17,7 @@ const nodeOptions = {
         updateInterval: {},
         updateIntervalType: {},
         updateIntervalUnits: {},
+        outputOnConnect: {},
         outputProperties: {},
     },
 };
@@ -32,14 +33,25 @@ class EventsCalendar extends EventsHaNode {
         if (this.isHomeAssistantRunning) {
             this.onStartTimeout();
         } else {
-            this.addEventClientListener(
-                'ha_client:initial_connection_ready',
-                this.onStartTimeout.bind(this)
-            );
-            this.addEventClientListener(
-                'ha_client:ready',
-                this.onStartTimeout.bind(this)
-            );
+            if (this.nodeConfig.outputOnConnect) {
+                this.addEventClientListener(
+                    'ha_client:initial_connection_ready',
+                    this.onTimer.bind(this)
+                );
+                this.addEventClientListener(
+                    'ha_client:ready',
+                    this.onTimer.bind(this)
+                );
+            } else {
+                this.addEventClientListener(
+                    'ha_client:initial_connection_ready',
+                    this.onStartTimeout.bind(this)
+                );
+                this.addEventClientListener(
+                    'ha_client:ready',
+                    this.onStartTimeout.bind(this)
+                );
+            }
         }
     }
 

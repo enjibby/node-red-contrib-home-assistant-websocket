@@ -33,6 +33,7 @@ interface EventsCalendarEditorNodeProperties extends HassNodeProperties {
     updateIntervalType: 'num' | 'expr';
     updateIntervalUnits: 'seconds' | 'minutes' | 'hours';
     outputProperties: OutputProperty[];
+    outputOnConnect: boolean;
 }
 
 const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
@@ -69,6 +70,7 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
                 ],
                 validate: outputsValidate,
             },
+            outputOnConnect: { value: true },
         },
         inputs: 0,
         outputs: 1,
