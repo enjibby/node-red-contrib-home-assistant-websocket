@@ -46,6 +46,17 @@ Reducing the Update Interval may increase rate limit errors from the Home Assist
 If you are experiencing issues with this node, try increasing the Update Interval.
 :::
 
+### Output on Connect
+
+- Type: `boolean`
+
+Check for calendar items in the current 'window' when Home Assistant is started.
+
+:::warning
+This can cause some items to be triggered multiple times if they are matched both before and after a restart.
+Alternatively, if set to false, a restart straddling an interval boundary may cause some items to be missed.
+:::
+
 ### Expose to Home Assistant
 
 - Type: `boolean`
