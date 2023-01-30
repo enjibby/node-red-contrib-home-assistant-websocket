@@ -39,6 +39,7 @@ const EventsCalendarEditor: EditorNodeDef<EventsCalendarEditorNodeProperties> =
     {
         category: NodeCategory.HomeAssistant,
         defaults: {
+            name: { value: '' },
             server: { value: '', type: NodeType.Server, required: true },
             haConfig: {
                 value: [
