@@ -121,7 +121,9 @@ class EventsCalendar extends EventsHaNode {
             return;
         }
 
-        // TODO: filter only events starting/ending in time range
+        items = items.filter(
+            this.isInIntervalRange.bind(this, currentStart, currentEnd)
+        );
 
         // TODO: filter items by criteria
 
@@ -133,6 +135,24 @@ class EventsCalendar extends EventsHaNode {
         items.forEach(this.sendCalendarItem.bind(this));
 
         this.status.setSuccess(`Found ${items.length} matched event(s)`);
+    }
+
+    /**
+     * Array-reduce callback function to filter matches that start or end inside the window
+     * @param {Date} currentStart beginning of the window in which to check whether this item starts or ends
+     * @param {Date} currentEnd end of the window in which to check whether this item starts or ends
+     * @param {Array} accumulator reduce function accumlator that holds matching items
+     * @param {Object} calendarItem the calendar item to add to the accumulator if starts or ends in the window
+     * @returns Array
+     */
+    isInIntervalRange(currentStart, currentEnd, calendarItem) {
+        const calendarItemDateRef = this.nodeConfig.eventType;
+        const itemDate = new Date(
+            calendarItem[calendarItemDateRef].dateTime ??
+                calendarItem[calendarItemDateRef].date
+        );
+
+        return itemDate >= currentStart && itemDate < currentEnd;
     }
 
     /**
