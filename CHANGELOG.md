@@ -2,6 +2,153 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.62.1](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/compare/v0.62.2...v0.62.1) (2023-12-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* Require Node-RED version 3.1.1+
+* Require Home Assistant 2023.12+
+* **call-service:** Requests Home Assistant 2023.12+
+* **get-history:** All message inputs are required to be under msg.payload others have been removed. Current ones have been changed to camelcase to follow other nodes. Message ouputs msg.startdate, msg.enddate, msg.entity_id have been removed.
+* **switch:** When use the service nodered.trigger the message object will to merge at the top level. Before it was added at msg.payload
+* Rename websocket type for device action/trigger
+* Message type change for device actions. Requires updated companion component.
+* **device:** Expose as won't work until manually converted in the Node-RED UI. Device node requires minimum 2.2.1 of hass-node-red.
+* **poll-state:** drop support for entity.timeSinceChanged
+* **events-state:** Change expose as to use entity config
+* **events-state:** Expose as won't work until manually converted in the Node-RED UI
+* **zone:** Expose as won't work until manually converted in the Node-RED UI
+* Expose as trigger no longer handles condition validation. It will only pass on the message sent through the service call and which outputs are selected.
+
+### Features
+
+* Add area and device helpers to JSONata ([8875d0f](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/8875d0f9c011231b0336f3c103e8de4fe1602b50))
+* Add entity picture to entity config ([132547f](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/132547f43901cd2fd17cf3755404a4ae4e3e83d0))
+* Add expose as ([8c7991c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/8c7991c5d5a69a2181db53af2ee7e251e22a1291))
+* Add expose as controller ([a50590c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/a50590c7ad45c5f571d4e5448b6b5d9579ae2451))
+* Add water device class to entity config ([4e05721](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4e05721c8f184c90aa766d78a11eece0cc547b1b)), closes [#733](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/733)
+* **call-service:** Handle response data from service calls ([#1166](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1166)) ([31bfbe0](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/31bfbe01cf584d47b490511c6ea21910c26f678a))
+* Enable message coalescing ([d235c35](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d235c3572ec5051cf11bc3bf26c9266f5ca9c659))
+* **entity-config:** Added Giga Joule as an energy unit ([#735](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/735)) ([4e8514c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4e8514c32409bb26005bb4f74fb6d33edb140874))
+* **number:** Add get mode ([9e1493c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/9e1493cb8b2d92a6027c067ff3a0c3311eea7d46))
+* **number:** Add number node ([64d3ce6](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/64d3ce6509a6b96c1095d68e68227c5202e1e125))
+* **number:** Add output to node when value changes in HA ([ec51cab](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ec51cab9cf2e6e890f45ee857347c044aa390915))
+* **poll-state:** Add output properties ([13de0d7](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/13de0d7ea9a59da1dd2021351afe07678f6309d1))
+* **select:** Add get mode ([9e1493c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/9e1493cb8b2d92a6027c067ff3a0c3311eea7d46))
+* **select:** Add select entity node ([e892060](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e8920606391b07dc27fe8c17ddc0d49c43b2ddcb))
+* **sentence:** Add response data for wildcards ([3f31af6](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3f31af6a53f69f71535cd7af087dbc3c12c8a18b))
+* **sentence:** Add sentence trigger node ([1ebf3a8](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/1ebf3a8d2e6bed004d1573d87a911052f23e46f5))
+* **sentense:** Add customizable response field ([c395a3f](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/c395a3f3a57a1877d1d2e8f2d481c9a4ad8b39b3))
+* **sidebar:** Add Home Assistant sidebar ([2da26cb](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/2da26cb3ffc268b18068f0d73ed5ccd0c304606d))
+* **text:** Add get mode ([9e1493c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/9e1493cb8b2d92a6027c067ff3a0c3311eea7d46))
+* **text:** Add output to node when value changes in HA ([ec51cab](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ec51cab9cf2e6e890f45ee857347c044aa390915))
+* **text:** Add text node ([2474a44](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/2474a448bde442d6acc482900bdce672c8e58f9e))
+* **time-entity:** Add time entity node ([ae190fd](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ae190fd1561bd9affb516c1f5f7ac262b5be8cad))
+* **webhook:** Add allowed methods to webhooks ([48ebdd8](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/48ebdd8008f56ae3bbd8d7b938a8a0ec53c60149))
+* **webhook:** Add expose as ([8ee8ba4](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/8ee8ba4e7e29a667f35d3ee8f00da4a25d17db8c))
+
+
+### Bug Fixes
+
+* Add a version file for diagnostics ([ad9f694](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ad9f6942dc0da52e6e0a7fc50a17a967b8a64792))
+* Allow data fields to be empty ([885a310](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/885a310431e23b801bbd3b6395afc860eb61739b)), closes [#1183](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1183)
+* **api:** Allow data field to empty ([4e51506](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4e515062c944b976d871311a80ff384ecff30f24))
+* **api:** Check for the type property ([e117475](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e11747542f749dc5226f77d46d5eb0e18509e3af))
+* **api:** Don't render data when the source is from the message ([6a1c7df](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/6a1c7df481a447abe1b741005c735e2b1d0eaede))
+* **binary-sensor:** Handle async for attributes ([240de61](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/240de610230d2fdbe57f56c9e607a24e47c21a77)), closes [#1079](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1079)
+* **button:** Remove event listeners when node is deployed ([e646f1d](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e646f1dfd6bec52dfa62e1d4ece827fb26b747e5)), closes [#881](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/881)
+* **call-service:** Allow call service to work prior to HA 2023.12 ([92c7a3f](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/92c7a3f723faa2138de03d914f3b16f42921a210))
+* Change evaluateJSONataExpression  to use callback ([#1063](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1063)) ([5e74756](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/5e74756d9f9cc3f9e78a9d87856c53aa70bb1f14)), closes [#898](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/898)
+* Changes so devcontainer works ([bddfde3](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/bddfde313dfcf0add3de13c39d980816a17442fe))
+* Default isEnable to true ([39c8b03](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/39c8b03e345cd21a9b7155cf059ed9ccbea17f65))
+* **entity-config:** Add missing moisture and wind speed device classes to entity config ([4e05721](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4e05721c8f184c90aa766d78a11eece0cc547b1b))
+* **event-state:** Handle errors through for initial connection ([e460713](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e460713311db3cf8d562cc1552f3c5fbef1a1d2b)), closes [#1102](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1102)
+* **fire-event:** Fix the validation of the data field ([483ab69](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/483ab699733e6d784e276c061898e706c66dcbe6)), closes [#1189](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1189)
+* Fix "show debug information" for all nodes ([65181f6](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/65181f6cb8556456a2b904f50b23956a5c1216a3))
+* Fix duplication of expose as trigger events ([53ac02e](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/53ac02eb54b2e1e43bc61a2459aed1aeea4d3cc6))
+* Fix duplication of nodes when converting expose as ([39c8b03](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/39c8b03e345cd21a9b7155cf059ed9ccbea17f65))
+* Fix integration not sending previous state when registering entity ([3cbe491](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3cbe4919efd7f00539b94d892fa7c183ad5bd1f8)), closes [#973](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/973)
+* Fix isTranslationKey to include __ ([ae14702](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ae14702aaa743c6c6bf185899590431167b0ec7c))
+* Fix slow opening nodes and other issues with select2 ([ec97ddd](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ec97dddd0299e477078328f5c9070e77dbdd7621))
+* Fix trigger service so zero sends to all paths ([a2697b2](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/a2697b2e578d98bdd190dafa53a93dce6161e00a))
+* **get-entities:** Handle async reduce ([2652acb](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/2652acb0ae6099713a8337b6de5d3749b914f5c3))
+* **get-entities:** Handle JSONata error in rules ([cbc1f48](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/cbc1f489ba82305bd10cc562f476d0eae29acef2)), closes [#1130](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1130)
+* **get-entities:** Only include entities that meet all the conditions ([1c69dd3](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/1c69dd38c1b17773af35f2b5bc1ce6e06c1d12d7))
+* **get-history:** fix to work with regex entity ids ([3e3dc05](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3e3dc0566a318a7d959a09c4fa6d05c96e070301)), closes [#924](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/924)
+* Handle older version of HA for entity registry ([5dec130](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/5dec13058414a68cfe4d3351433225b383ff9bd3)), closes [#1030](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1030)
+* Handle promise rejections ([7c28dc7](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/7c28dc75459937de0d5423eb69de774f58e74299)), closes [#757](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/757)
+* Handle translation keys that aren't strings ([da96c65](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/da96c65eeebc363319e47a7e88cb3f65b5fcfc31))
+* Merge existing HA settings before saving ([e44cfaf](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e44cfaffd258d1187133682c95a682198a02f6bd)), closes [#1147](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1147)
+* **number:** Fix removing of entity listeners ([3cad0da](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3cad0dab80313df1dfad190debf45784c328cd54))
+* **number:** Save changes made in HA ([9975266](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/99752666830c44579ee4654eb108c8cc4ca7f43c))
+* Only log connected closed once ([59bae23](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/59bae23eca6e758ebb9d37042be41ab1c71966c1))
+* Only render expose as when necessary ([6fbe53d](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/6fbe53d2c5ae0ca349d1dfc50e44523517113434))
+* Only translate when it is looks like a key ([a6f0f36](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/a6f0f36dfe09f70ef76fa0a840128dc85ea025d1))
+* **poll-state:** Fix i18n labels ([13c8ad8](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/13c8ad8b24868aa387650aef79461bc00b2cb928)), closes [#995](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/995)
+* **poll-state:** Handle errors through for initial connection ([e460713](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e460713311db3cf8d562cc1552f3c5fbef1a1d2b))
+* Remove config from entity category ([19e16f2](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/19e16f22221f66a2c4c16c3b0c57ac895af65848))
+* Require Node-RED version 3.1.1+ ([78fdb35](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/78fdb352b79419d2bb51838d285c986ceb38d802))
+* **scrubber:** Add all current HA nodes to scrubber ([4b12a49](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4b12a4979ef6ce55b6c58bee171d63be86c60bf0))
+* **select:** Fix removing of entity listeners ([3cad0da](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3cad0dab80313df1dfad190debf45784c328cd54))
+* **select:** Fix validation of option ([68b8f2f](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/68b8f2f0841f52d54f4cdb5c8931164f10aca35e)), closes [#1145](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1145)
+* **select:** Save changes made in HA ([9975266](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/99752666830c44579ee4654eb108c8cc4ca7f43c)), closes [#1100](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1100)
+* **sensor:** Allow attriubtes input to be an array ([d066479](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d066479308310768019bc4c98bebb893ffac91ff)), closes [#725](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/725)
+* **sensor:** Expose sent data to output properties ([1dd6fb0](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/1dd6fb08071ff8d5fb0ef4517d1db4b5ec3864b1)), closes [#702](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/702)
+* **sensor:** Handle async for attributes ([240de61](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/240de610230d2fdbe57f56c9e607a24e47c21a77))
+* **sentence:** Catch error from custom outputs ([867289a](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/867289a6bfb3bdc77adfa1756adc5489f30e6983))
+* **sentence:** Sentence node requires hass-node-red v2.2+ ([4449d9b](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4449d9b8460c4662a0c3d1077d4a23342ab60f33))
+* **server:** Catch exception when access token is invalid ([3d3cf8d](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3d3cf8d5332da22ed810bb04190b250a9e921950)), closes [#770](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/770)
+* Show the correct error message not unknown ([e598b92](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e598b92f8ca88d38a277fdbf3f1105fc7c044ff3))
+* **switch:** Change to strict checking of payload for onTrigger ([6c1a795](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/6c1a795ae4fdc14ba28c450764603b4245285b6a)), closes [#983](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/983)
+* **switch:** Insert trigger message in top level not in payload ([5762f49](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/5762f49acfd1c924c7b778e1b1e181ad183e811d))
+* **tag:** Listen for correct event ([0fc163d](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/0fc163de64bb820886395405d8ddd7939483c4d7))
+* **text:** Fix removing of entity listeners ([3cad0da](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3cad0dab80313df1dfad190debf45784c328cd54))
+* **text:** Fix schema for the input to allow strings ([32a5c4d](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/32a5c4de79c886c665ae3a63a6b7d11402d838b0))
+* **text:** Save changes made in HA ([9975266](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/99752666830c44579ee4654eb108c8cc4ca7f43c))
+* throttle registry lookups to 500 ms ([9fa2177](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/9fa21773f2bce4ad25cbd3acdba3c1cd3d269235))
+* Throw error if HA version doesn't meet requirement ([6d84f0c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/6d84f0c2a4b039d22b3d836313a1d975453bcd5a))
+* **time-entity:** Fix mislabeled locale strings ([e898c6d](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e898c6da65ed8f25c989ac2e0618858847ff58d7))
+* **time-entity:** Save changes made in HA ([9975266](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/99752666830c44579ee4654eb108c8cc4ca7f43c))
+* **time:** Fix breaking changes from cron package ([5cf6d5b](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/5cf6d5b4f2e8f06cccb8ebde8acceb7ccee1382e))
+* **time:** Fix usage of toDate, luxon doesn't support it ([ca9a81a](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/ca9a81a0723d52e6ad7715746360ac40d9f38e6d))
+* **time:** Handle onStateChanged errors ([8365b5a](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/8365b5aa21ae091fad1c730eb3a8ab1b72c25409))
+* **time:** Stop status message from getting cut off ([855de64](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/855de642e581743f62b26029fab56c8a3b2b2e13))
+* **trigger-state:** Fix migration from 2 to 3 to use correct state type value ([af6664f](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/af6664f7a7e64fc5a3ef6e501ed4b9571efccb06))
+* **trigger-state:** Fix migrations for version 3 ([4cbbb46](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4cbbb468b5c58a649b00db93bc1e68f0dda05d36))
+* **trigger-state:** Handle errors through for initial connection ([e460713](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e460713311db3cf8d562cc1552f3c5fbef1a1d2b))
+* **trigger-state:** Handle missing entity errors ([4805cc3](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/4805cc394de2bbc46d3ab432895b1d595c2faf26)), closes [#1096](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1096)
+* **trigger-state:** Only output custom ouputs with valid conditions ([7d123fd](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/7d123fd25ed845ab9d6bf975ae36943b5784e241))
+* Use error handler for event class ([#1018](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1018)) ([b009362](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/b009362ea3b1fff44d0030d68cef335a04056bbe))
+* Use the correct package.json file for node version ([11abb05](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/11abb0507e1c99c2a6678f2aaa83b45de67318e1))
+* **wait-until:** Catch errors thrown during timeout ([eab4c19](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/eab4c19400d572462f2fec2c8cd3645dc017709e))
+* **wait-until:** Fix typo in timed out status ([d46005c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d46005c1e9c93fce2bd5f9c724360dd7b7f40834)), closes [#755](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/755)
+* **wait-until:** Handle non existent entities ([a524e45](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/a524e45df2cdb44345e25421aae561c32c5a2bf5)), closes [#1127](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1127)
+
+
+### Performance Improvements
+
+* Use entity registry for display it has smaller payload ([d630751](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d630751c1274660150a85d8fa1d5243cc4096dc5))
+
+
+### Miscellaneous Chores
+
+* Fix misspelling ([d4c4349](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d4c4349bd3d9251ecb50028f655bdcf1360113b9))
+* release 0.62.0 ([d92d2d6](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d92d2d67006287f2ee3cfc60552793d69d2ed3b2))
+* release 0.62.1 ([9f50a91](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/9f50a91fac04e713955accb9a1144178c16e766d))
+* Rename websocket type for device action/trigger ([d4c4349](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/d4c4349bd3d9251ecb50028f655bdcf1360113b9))
+* Require Home Assistant 2023.12+ ([#1168](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1168)) ([e481b67](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/e481b67c1958b7ac881df9840744df88d20ea66b))
+
+
+### Code Refactoring
+
+* **device:** Change expose as to use entity config ([67756d1](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/67756d17535349eb54065a747035c3408820c58c))
+* **events-state:** Change expose as to use entity config ([2013080](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/2013080dd99ec3105a0640c18bc3426b9590dad4))
+* **events-state:** Convert controller to Typescript ([2013080](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/2013080dd99ec3105a0640c18bc3426b9590dad4))
+* Expose as trigger only passes on a message payload ([#1019](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/issues/1019)) ([3774f8c](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/3774f8c6934f3d9985575d85a3e8f92e0326f43f))
+* **poll-state:** Convert controller to typescript ([13de0d7](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/13de0d7ea9a59da1dd2021351afe07678f6309d1))
+* **zone:** Convert controller to Typescript ([16bd3eb](https://github.com/enjibby/node-red-contrib-home-assistant-websocket/commit/16bd3eb25fa5734b3b23d33ca8bc3f34521de0d9))
+
 ## [0.62.2](https://github.com/zachowj/node-red-contrib-home-assistant-websocket/compare/v0.62.1...v0.62.2) (2023-12-13)
 
 
